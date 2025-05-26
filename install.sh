@@ -21,8 +21,11 @@ echo "Creating log directory..."
 mkdir -p /var/log/audit
 chmod 755 /var/log/audit
 
+# Get the user who invoked sudo
+REAL_USER=${SUDO_USER:-$(whoami)}
+
 # Copy service file to systemd directory
-echo "Installing systemd service..."
+echo "Installing systemd service for user: $REAL_USER"
 cp python-audit-monitor.service /etc/systemd/system/
 
 # Make the monitor script executable
@@ -32,13 +35,13 @@ chmod +x audit_monitor.py
 echo "Enabling and starting service..."
 systemctl daemon-reload
 systemctl enable python-audit-monitor.service
-systemctl start python-audit-monitor.service
+systemctl start python-audit-monitor@$REAL_USER.service
 
 # Check service status
 echo "Service status:"
-systemctl status python-audit-monitor.service --no-pager
+systemctl status python-audit-monitor@$REAL_USER.service --no-pager
 
 echo "Installation complete!"
-echo "To check logs: journalctl -u python-audit-monitor.service -f"
-echo "To stop service: sudo systemctl stop python-audit-monitor.service"
-echo "To start service: sudo systemctl start python-audit-monitor.service"
+echo "To check logs: journalctl -u python-audit-monitor@$REAL_USER.service -f"
+echo "To stop service: sudo systemctl stop python-audit-monitor@$REAL_USER.service"
+echo "To start service: sudo systemctl start python-audit-monitor@$REAL_USER.service"

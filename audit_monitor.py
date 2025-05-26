@@ -306,10 +306,8 @@ def upload_logs(monitor):
                 timestamped_file = f"/tmp/{filename}"
                 subprocess.run(['cp', monitor.log_file, timestamped_file], check=True)
                 
-                # Upload to GCS with custom config directory to avoid /root/.config
+                # Upload to GCS using user's gcloud config
                 env = os.environ.copy()
-                env['CLOUDSDK_CONFIG'] = '/tmp/gcloud_config'
-                os.makedirs('/tmp/gcloud_config', exist_ok=True)
                 
                 result = subprocess.run(['gsutil', 'cp', timestamped_file, remote_path], 
                                       capture_output=True, text=True, env=env)
